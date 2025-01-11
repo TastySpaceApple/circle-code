@@ -30,6 +30,7 @@ class CircleCodedMarker {
     if(numPowerCouples === 0){
       return -1;
     }
+    console.log('numPowerCouples:', numPowerCouples);
     let numRegularCodeLines = codeLineAngles.length - numPowerCouples * 2;
     const code = numPowerCouples * 4 + numRegularCodeLines - 4;
     return code;
@@ -50,7 +51,7 @@ class CircleCodedMarker {
       const dist = distPoints(start, end);
       let far = new cv.Point(contour.data32S[defects.data32S[j * 4 + 2] * 2], contour.data32S[defects.data32S[j * 4 + 2] * 2 + 1]);
       let depth = defects.data32S[j * 4 + 3] / 256;
-      if (depth > dist * 0.3) {
+      if (depth > dist * 0.25) {
         defectPoints.push(far);
       }
     }
@@ -89,14 +90,20 @@ function getCircleFromContour(contour) {
   const rect = cv.boundingRect(approx);
   const center = { x: rect.x + rect.width / 2, y: rect.y + rect.height / 2 };
   const { radius } = cv.minEnclosingCircle(approx);
-  const unacceptableDistance = radius * 0.25;
+  let maxImperfectionDelta = 0;
+  let maxImperfection = 0;
 
   let isCircle = true;
   for (let j = 0; j < approx.rows && isCircle; ++j) {
     const point = { x: approx.data32S[j * 2], y: approx.data32S[j * 2 + 1] };
     let distance = distPoints(center, point);
-    if (Math.abs(distance - radius) > unacceptableDistance) {
-      isCircle = false;
+    const delta = Math.abs(distance - radius);
+    if (delta > maxImperfectionDelta) {
+      maxImperfectionDelta = delta;
+      maxImperfection = delta / radius;
+      if(maxImperfection > 0.3){
+        isCircle = false;
+      }
     }
   }
   if(!isCircle){
@@ -106,6 +113,7 @@ function getCircleFromContour(contour) {
   return { 
     center, 
     radius,
+    imperfection: maxImperfection,
     contour: approx
   }
 }
@@ -116,7 +124,7 @@ const isCircleInCircle = (outerCircle, innerCircle) => {
 }
 
 let imgElement = new Image();
-imgElement.src = './images/10.png';
+imgElement.src = './images/11.png';
 imgElement.onload = function () {
   ctx.strokeStyle = 'red';
   canvas.width = imgElement.width;
@@ -159,7 +167,9 @@ imgElement.onload = function () {
         continue;
       }
       if(isCircleInCircle(circles[i], circles[j])){
-        markers.push(new CircleCodedMarker(circles[i], circles[j]));
+        if(circles[i].imperfection < circles[j].imperfection){  
+          markers.push(new CircleCodedMarker(circles[i], circles[j]));
+        }
       }
     }
   }

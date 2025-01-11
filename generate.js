@@ -6,7 +6,7 @@ const padding = 40;
 const lineColor = 'black';
 const circleStrokeWidth = 10;
 const codeLineWidth = 30;
-const codeLineLength = 20;
+const codeLineLength = 30;
 const numPowerCouplesCodeLines = 4;
 const numRegularCodeLines = 6;
 const numCodeLines = numPowerCouplesCodeLines + numRegularCodeLines;
@@ -50,7 +50,6 @@ function generate(id) {
   ctx.stroke();
 
   // draw lines
-  const startAngle = Math.PI / 4;
   const code = {};
   for (let i = 0; i < numCodeLines; i++) {
     code[i] = LINE_CODES_STYLES.NONE;
@@ -62,7 +61,7 @@ function generate(id) {
   let powerCouplesLocations = new Array(numPowerCouplesCodeLines).fill(0).map((_, i) => Math.floor(numCodeLines / numPowerCouplesCodeLines * (i + 1)));
   
   powerCouplesLocations.forEach((location) => {
-    if(sum > 4){
+    if(sum >= 4){
       code[location] = LINE_CODES_STYLES.POWER_COUPLE;
       sum -= 4;
     }
@@ -110,4 +109,6 @@ function generate(id) {
   out.on('finish', () => console.log('The PNG file was created.'));
 }
 
-generate(10);
+for (let i = 0; i <= maxCodeableNumber; i++) {
+  generate(i);
+}
