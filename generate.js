@@ -56,18 +56,18 @@ function generate(id) {
   }
 
   
-  let sum = id + 4;
+  let sum = id;
   
   let powerCouplesLocations = new Array(numPowerCouplesCodeLines).fill(0).map((_, i) => Math.floor(numCodeLines / numPowerCouplesCodeLines * (i + 1)));
   
   powerCouplesLocations.forEach((location) => {
-    if(sum >= 4){
+    if(sum > 4){
       code[location] = LINE_CODES_STYLES.POWER_COUPLE;
       sum -= 4;
     }
   });
 
-  let locations = new Array(numCodeLines).fill(0).map((_, i) => i).filter((i) => code[i] === LINE_CODES_STYLES.NONE);
+  let locations = new Array(numCodeLines - 1).fill(0).map((_, i) => i + 1).filter((i) => code[i] === LINE_CODES_STYLES.NONE);
   // pick random locations
   while (sum > 0) {
     const randomIndex = Math.floor(Math.random() * locations.length);
@@ -90,8 +90,11 @@ function generate(id) {
   }
 
 
+  drawCodeLine(0);
+  drawCodeLine(Math.PI);
+
   for (let i = 0; i < numCodeLines; i++) {
-    const angle = -Math.PI / numCodeLines * i;
+    const angle = -Math.PI / (numCodeLines + 1) * i;
     
     if (code[i] === LINE_CODES_STYLES.POWER_COUPLE) {
       console.log("POWER COUPLE");

@@ -6,6 +6,8 @@ canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
 const ctx = canvas.getContext('2d');
+ctx.fillStyle = 'black';
+ctx.fillRect(0, 0, canvas.width, canvas.height);
 
 const drawMarkerOnCanvas = async () => {
   const id = Math.floor(Math.random() * 16);
@@ -57,4 +59,8 @@ markers.forEach((marker) => {
   angles.forEach((angle) => {
     drawLine(marker.innerCircle.center, angle, marker.innerCircle.radius);
   });
+  ctx.fillStyle = 'black';
+  // draw the marker code
+  ctx.font = '20px Arial';
+  ctx.fillText(marker.code, marker.outerCircle.center.x, marker.outerCircle.center.y);
 });

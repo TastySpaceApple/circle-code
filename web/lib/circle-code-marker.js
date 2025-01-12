@@ -16,7 +16,7 @@ class CircleCodedMarker {
       for (let j = 0; j < codeLineAngles.length; ++j) {
         for (let k = j + 1; k < codeLineAngles.length; ++k) {
           const angleDiff = Math.abs(180 - Math.abs(codeLineAngles[j] - codeLineAngles[k]));
-          if (angleDiff < 10) {
+          if (angleDiff < 13) {
             numPowerCouples++;
           }
         }
@@ -43,11 +43,14 @@ class CircleCodedMarker {
       for (let j = 0; j < defects.rows; j++) {
         let start = new cv.Point(contour.data32S[defects.data32S[j * 4] * 2], contour.data32S[defects.data32S[j * 4] * 2 + 1]);
         let end = new cv.Point(contour.data32S[defects.data32S[j * 4 + 1] * 2], contour.data32S[defects.data32S[j * 4 + 1] * 2 + 1]);
-        const dist = distPoints(start, end);
+        const midPoint = {
+          x: (start.x + end.x) / 2,
+          y: (start.y + end.y) / 2
+        };
         let far = new cv.Point(contour.data32S[defects.data32S[j * 4 + 2] * 2], contour.data32S[defects.data32S[j * 4 + 2] * 2 + 1]);
-        let depth = defects.data32S[j * 4 + 3] / 256;
-        if (depth > dist * 0.25) {
-          defectPoints.push(far);
+        let depth = distPoints(midPoint, far);
+        if (depth > this.innerCircle.radius * 0.1) {
+          defectPoints.push(midPoint);
         }
       }
       // for each defect, find the angle from the center

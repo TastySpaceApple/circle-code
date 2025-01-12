@@ -13,11 +13,15 @@ function getCircleFromContour(contour) {
   }
 
   const approx = contour;
-  // cv.approxPolyDP(contour, approx, 0.005 * cv.arcLength(contour, true), true);
+  cv.approxPolyDP(contour, approx, 0.005 * cv.arcLength(contour, true), true);
 
   const rect = cv.boundingRect(approx);
   const center = { x: rect.x + rect.width / 2, y: rect.y + rect.height / 2 };
   const { radius } = cv.minEnclosingCircle(approx);
+  const deltaRectFromCircle = Math.abs(rect.width / 2 - radius) + Math.abs(rect.height / 2 - radius);
+  if (deltaRectFromCircle > 10) {
+    return false;
+  }
   let maxImperfectionDelta = 0;
   let maxImperfection = 0;
 
@@ -74,6 +78,7 @@ class CircleCodeRecognizer {
       }
     }
 
+    this.circles = circles;
 
     return circles;
   }
